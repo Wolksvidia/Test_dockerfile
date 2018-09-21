@@ -1,0 +1,103 @@
+{% from '_macro.html' import messages, render_li_link %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
+    <title>{% block title %}Titulo{% endblock %}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <!-- Custom styles for this template 
+	<link href="{{ url_for('static', filename='css/jumbotron.css') }}" rel="stylesheet">
+	-->
+	<link href="{{ url_for('static', filename='css/sticky-footer-navbar.css') }}" rel="stylesheet">
+    
+	{% block links %}{% endblock %}
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="">Projecto Inventario</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse " aria-expanded="false" style="height: 400px;">
+			<!--Main menu-->
+            <ul class="nav navbar-nav">
+				<li><a href="{{ url_for('index')}}">Home</a></li>{% if 'username' in session %}
+				<li><a href="{{ url_for('new_location')}}">Locations</a></li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Devices</a>
+					<ul class="dropdown-menu">
+					  {{ render_li_link(session['urls_d']) }}
+					</ul>
+				</li>
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users</a>
+					<ul class="dropdown-menu">
+					  {{ render_li_link(session['urls_u']) }}
+					</ul>
+				</li>
+            </ul>
+			<!-- User Account Menu -->
+			<ul class="nav navbar-nav navbar-right">
+				<li><a tabindex="0" class="btn mypop" role="button">{{ session['username'] }} 
+				<img src="{{ url_for('static', filename='images/avatar5.png') }}" class="img-circle" width="34px%" height="34px">
+				</a></li>{% endif %}
+			</ul>
+        </div>
+      </div>
+    </nav>
+    <!-- jumbotron -->
+	<div class="container">
+	<br/>
+		<div class="page-header">
+			{% block header %}
+			{% endblock %}
+			{{ messages() }}
+		</div>
+    </div>
+	<!-- content -->
+    {% block content %}
+	{% endblock %} 
+	<!-- footer -->	
+	<footer class="footer">
+	{% block footer %}
+	<div class="container"> 
+		<p class="text-muted">© 2017 Wolks Web Services.</p>
+	</div>
+	{% endblock %}
+	</footer>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	{% if 'user_id' in session %}
+	<script type="text/javascript">
+        $(".mypop").popover({
+           placement: "bottom",
+           title: "User Menu",
+           content: "<div class='btn-group btn-group-vertical'><a href='{{ url_for('view_user', uid=session['user_id'])}}' class='btn'>Profile</a>\n\<a href='{{url_for('logout')}}' class='btn'>Logout</a></div>",
+           html: true
+       });
+	</script>
+	{% endif %}
+	{% block script %}
+	{% endblock %}
+</body></html>
