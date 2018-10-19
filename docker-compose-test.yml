@@ -3,7 +3,6 @@ version: '3'
 
 services:
   web:
-    restart: always
     image: web:test
     deploy:
       replicas: 1
@@ -20,7 +19,6 @@ services:
       - postgres
 
   postgres:
-    restart: always
     image: postgre:test
     deploy:
       replicas: 1
