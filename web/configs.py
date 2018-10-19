@@ -14,7 +14,7 @@ class Config(object):
 
 class ExtendedConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_UR = 'postgresql://postgres:postgres@postgres/inventory'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@postgres/inventory'
 
 
 class DevelopmentConfig(Config):

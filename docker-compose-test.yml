@@ -9,16 +9,16 @@ services:
       placement:
         constraints:
           - node.role==manager
-    networks:
-      - front-tier
-      - back-tier
+    environment:
+      - APP_CONFIG = ExtendedConfig
+    command: ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "main:app"]
     ports:
       - 8000:8000
     depends_on:
       - postgres
 
   postgres:
-    image: postgre:test
+    image: postgres:test
     deploy:
       replicas: 1
       placement:
@@ -26,12 +26,6 @@ services:
           - node.role==manager
     volumes:
       - "db-data:/var/lib/postgresql/data"
-    networks:
-      - back-tier
 
 volumes:
   db-data:
-
-networks:
-  front-tier:
-  back-tier:

@@ -21,6 +21,7 @@ RUN chown -R flask:flaskgroup /app/web
  
 USER flask
 
-CMD ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "main:app"]
+#CMD ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "main:app"]
+#CMD ["python", "main.py"]
 
 EXPOSE 8000/tcp

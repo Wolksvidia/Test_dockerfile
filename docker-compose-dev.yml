@@ -2,10 +2,9 @@ version: '3'
 
 services:
   web:
-    restart: always
     image: web:test
     environment:
-      - APP_CONFIG = configs.DevelopmentConfig
-    command: /usr/local/bin/python main.py
+      - APP_CONFIG = DevelopmentConfig
+    command: ["python", "main.py"]
     ports:
       - 8000:8000
