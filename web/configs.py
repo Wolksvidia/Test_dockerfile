@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
-DB_URL = 'postgresql://postgres:postgres@postgres/inventory'
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
@@ -12,7 +12,12 @@ class Config(object):
     MAIL_PASSWORD = 'Password'
 
 
+class ExtendedConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_UR = 'postgresql://postgres:postgres@postgres/inventory'
+
+
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = DB_URL
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'test.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False

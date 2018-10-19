@@ -1,5 +1,4 @@
 FROM python:3.6.6 
-MAINTAINER Wolksvidia <wolksvidia@gmail.com>
  
 # Create the group and user to be used in this container
 RUN groupadd flaskgroup && useradd -m -g flaskgroup -s /bin/bash flask

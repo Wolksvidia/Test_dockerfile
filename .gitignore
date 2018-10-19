@@ -90,12 +90,14 @@ celerybeat-schedule
 .venv
 venv/
 ENV/
+env_test_flask/
 
 # Spyder project settings
 .spyderproject
 .spyproject
 
 # Rope project settings
+test.code-workspace
 .ropeproject
 
 # mkdocs documentation

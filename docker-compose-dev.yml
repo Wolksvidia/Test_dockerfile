@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  web:
+    restart: always
+    build: ./web
+    environment:
+      - APP_CONFIG = configs.DevelopmentConfig
+    ports:
+      - "8000:8000"
+    command: /usr/local/bin/python main.py

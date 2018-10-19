@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
+import os
+import threading
+import forms
 
-from flask import Flask, abort
-from flask import request
-from flask import render_template
-from flask import session, url_for, redirect, flash
+from flask import (Flask, abort, request, render_template,
+    session, url_for, redirect, flash, copy_current_request_context)
 from flask_wtf.csrf import CSRFProtect
-from flask import copy_current_request_context
 from flask_mail import Mail, Message
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager
-from configs import DevelopmentConfig, DB_URL
+
+from configs import DevelopmentConfig, ExtendedConfig
 from models import dbm as db, User, Comment, Location, Device
 from helpers import date_format
 from api import api_blueprint
-import threading
-import forms
 
 app = Flask(__name__)
 
 #cargo las configuraciones desde la clase
-app.config.from_object(DevelopmentConfig)
+#app.config.from_object(DevelopmentConfig)
+app.config.from_object(os.environ['APP_CONFIG'])
+
 csrf = CSRFProtect()
 csrf.init_app(app)
 # Agrego la api mediante blueprint
@@ -28,10 +27,6 @@ csrf.exempt(api_blueprint)
 #para que la db tome las configuraciones
 db.init_app(app)
 mail = Mail(app)
-
-migrate = Migrate(app, db)
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
 
 
 def send_email(username, email, message, subject):
@@ -94,7 +89,7 @@ def login():
         username = login_form.username.data
         password = login_form.password.data
         user = User.query.filter_by(username=username).first()
-        if user is not None and user.verify_password(password) and user.staff is True:
+        if user and user.verify_password(password) and (user.staff is True):
             flash(('info', 'Bienvenido {}.'.format(username)))
             session['username'] = username
             session['user_id'] = user.id
@@ -123,18 +118,22 @@ def logout():
 @app.route('/user/new/<int:id>', methods=['GET', 'POST'])
 def new_user(id=None):
     """Agrega y actualiza los el objeto User"""
-    if id is not None:
+    if id:
+        #Actualizacion
         user = User.query.filter(User.id == id).one_or_none()
         if user is None:
+            #El id no existe >> 404
             flash(('danger', 'Lo sentimos algo salio mal!.'))
             return redirect(url_for('view_user'))
         if request.method == 'GET':
+            #Lleno el formulario con datos del usuario
             user_form = forms.CreateUserForm(obj=user)
         elif request.method == 'POST':
+            #El formulario viene con datos para actualizar
             user_form = forms.CreateUserForm(request.form)
             user_form.location.choices = [(g.id, g.location_name) for g in Location.query.order_by('location_name').all()]
             user_c = User.query.filter_by(username=user_form.username.data).one_or_none()
-            if user_c is not None and user_c.id != id:
+            if user_c and user_c.id != id:
                 flash(('danger', 'El usuario ya se encuentra registrado!'))
                 return render_template('new_user.html', form=user_form)
             if user_form.validate():
@@ -148,13 +147,15 @@ def new_user(id=None):
                     flash(('danger', 'Lo sentimos algo salio mal!.'))
                     return redirect(url_for('index'))
     else:
+        #Nuevo Usuario
         user_form = forms.CreateUserForm(request.form)
         user_form.location.choices = [(g.id, g.location_name) for g in Location.query.order_by('location_name').all()]
         user_d = User.query.filter_by(username=user_form.username.data).first()
-        if user_d is not None:
-            flash(('danger', 'El usuario ya se encuentra registrado!'))
-            return render_template('new_user.html', form=user_form)
-        if request.method == 'POST' and user_form.validate():
+        if user_d:
+            #El usuario ya existe
+            flash(('danger', 'El usuario ya se encuentra registrado, elija otro!'))
+        elif request.method == 'POST' and user_form.validate():
+            #Datos para el nuevo usuario
             user_s = User(user_form.username.data,
                 user_form.email.data,
                 user_form.password.data,
@@ -169,7 +170,6 @@ def new_user(id=None):
                 print(e)
                 flash(('danger', 'Lo sentimos algo salio mal!.'))
                 return redirect(url_for('index'))
-            return redirect(url_for('view_user'))
     user_form.location.choices = [(g.id, g.location_name) for g in Location.query.order_by('location_name').all()]
     return render_template('new_user.html', form=user_form)
 
@@ -178,7 +178,7 @@ def new_user(id=None):
 def del_user(id):
     """Elimina el usuario del id suministrado en la url"""
     user = User.query.filter(User.id == id).one_or_none()
-    if user is not None:
+    if user:
         if len(user.device_id) is 0:
             try:
                 user.delete()
@@ -224,9 +224,9 @@ def new_device(id=None):
     else:
         form = forms.UpdateDevice(request.form)
     form.location.choices = [(g.id, g.location_name) for g in Location.query.order_by('location_name').all()]
-    if request.method == 'GET' and id is not None:
+    if request.method == 'GET' and id:
         dev = Device.query.filter(Device.id == id).one_or_none()
-        if dev is not None:
+        if dev:
             form.name.data = dev.name
             form.location.data = dev.location
             form.serial_number.data = dev.serial_number
@@ -239,7 +239,7 @@ def new_device(id=None):
         else:
             abort(404)
     if request.method == 'POST' and form.validate():
-        if id is not None:
+        if id:
             dev = Device.query.filter(Device.id == id).one()
             form.populate_obj(dev)
         else:
@@ -269,10 +269,7 @@ def new_device(id=None):
 def view_devices(did=None):
     """Visualizacion de todos los objetos Device o del template de detalle del
     dispositivo si es que un id valido es suministrado en la url"""
-    if did is None:
-        devs = Device.query.order_by(Device.name).outerjoin(Location).add_columns(Location.location_name).all()
-        return render_template('view_devices.html', devs=devs)
-    else:
+    if did:
         try:
             dev = Device.query.filter(Device.id == did).join(Location).add_columns(Location.location_name).one()
         except Exception as e:
@@ -282,6 +279,10 @@ def view_devices(did=None):
         form = forms.CommentForm(request.form)
         return render_template('view_device.html', dev=dev, form=form,
             date_format=date_format)
+        
+    else:
+        devs = Device.query.order_by(Device.name).outerjoin(Location).add_columns(Location.location_name).all()
+        return render_template('view_devices.html', devs=devs)
 
 
 @app.route('/device/del/<int:id>')
@@ -289,7 +290,7 @@ def del_device(id):
     """Eliminacion del dispositivo de id suministrado en la url mientras que
     sea valido y exista"""
     dev = Device.query.filter(Device.id == id).one_or_none()
-    if dev is not None:
+    if dev:
         if dev.user_id is None:
             try:
                 dev.delete()
@@ -311,7 +312,7 @@ def change_device_state(did):
     """Cambia el estado del dispositivo con id suministrado mediante la url,
     dependiendo de en que estado se encuentre"""
     dev = Device.query.filter(Device.id == did).one_or_none()
-    if dev is not None:
+    if dev:
         try:
             if dev.active:
                 dev.active = False
@@ -343,7 +344,7 @@ def assign_device():
     elif request.method == 'POST':
         dev = Device.query.filter(Device.id == form.device.data).one_or_none()
         user = User.query.filter(User.id == form.user.data).one_or_none()
-        if (dev and user) is not None:
+        if (dev and user):
             dev.user_id = user.id
             try:
                 dev.update()
@@ -375,7 +376,7 @@ def unassign_device(did):
     """Quita la asignacion del dispositivo con id suministrado en la url"""
     uid = request.args.get('uid', None)
     dev = Device.query.filter(Device.id == did).one_or_none()
-    if (dev and uid) is not None:
+    if (dev and uid):
         dev.user_id = None
         try:
             dev.update()
@@ -412,7 +413,7 @@ def add_comment(did):
 def del_comment(did, cid):
     """Borra un comentario asociado a un dispositivo especifico"""
     cm = Comment.query.filter(Comment.id == cid).one_or_none()
-    if cm is not None:
+    if cm:
         try:
             cm.delete()
             flash(('success', 'El comentario se borro exitosamente!.'))
@@ -431,14 +432,14 @@ def new_location(id=None):
     """Agregado y actualizacion de ojetos Location"""
     locations = Location.query.order_by('location_name').all()
     form = forms.CreateLocation(request.form)
-    if request.method == 'GET' and id is not None:
+    if request.method == 'GET' and id:
         loc = Location.query.filter(Location.id == id).one_or_none()
-        if loc is not None:
+        if loc:
             form.name.data = loc.location_name
         else:
             abort(404)
     if request.method == 'POST' and form.validate():
-        if id is not None:
+        if id:
             loc = Location.query.filter(Location.id == id).one()
             loc.location_name = form.name.data
         else:
@@ -460,7 +461,7 @@ def new_location(id=None):
 def del_location(id):
     """Borra un objeto Location"""
     loc = Location.query.filter(Location.id == id).one_or_none()
-    if loc is not None:
+    if loc:
         try:
             loc.delete()
             flash(('success', 'Locacion se borro exitosamente!.'))
@@ -469,3 +470,8 @@ def del_location(id):
             print(e)
             flash(('danger', 'Lo sentimos algo salio mal!.'))
     return redirect(url_for('new_location'))
+
+
+if __name__ == '__main__':
+    app_context()
+    app.run(port=8000)

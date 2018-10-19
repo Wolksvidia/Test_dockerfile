@@ -61,7 +61,7 @@ class User(dbm.Model, CRUD):
         concuerde con la almacenada"""
         return check_password_hash(self.password, password)
 
-    def parse_user(self):
+    def json(self):
         """Genera un diccionario con los datos del objeto User
         para poder ser transformados a json"""
         datos = {}
@@ -103,7 +103,7 @@ class Location(dbm.Model, CRUD):
     def __repr__(self):
         return '<Location %r>' % self.location_name
 
-    def parse_location(self):
+    def json(self):
         """Genera un diccionario con los datos del objeto Location
         para poder ser transformados a json"""
         datos = {}
@@ -162,7 +162,7 @@ class Device(dbm.Model, CRUD):
             'ld': 'Linux Debian'}
         return choice[self.system]
 
-    def parse_device(self):
+    def json(self):
         """Genera un diccionario con los datos del objeto Device
         para poder ser transformados a json"""
         datos = {}
