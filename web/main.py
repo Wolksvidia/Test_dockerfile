@@ -73,6 +73,11 @@ def after_request(response):
     return response
 
 
+@app.before_first_request
+def crear():
+    app_context()
+
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -474,5 +479,4 @@ def del_location(id):
 
 
 if __name__ == '__main__':
-    app_context()
     app.run(port=8000)
