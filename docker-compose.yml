@@ -1,4 +1,5 @@
 version: '3'
+#archivo originalmente creado para utilizar con Compose
 
 services:
   web:
