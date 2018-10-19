@@ -3,7 +3,8 @@ version: '3'
 services:
   web:
     restart: always
-    build: ./web
+    build: 
+      context: ./web
     environment:
       - APP_CONFIG = configs.DevelopmentConfig
     ports:

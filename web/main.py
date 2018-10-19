@@ -17,7 +17,8 @@ app = Flask(__name__)
 
 #cargo las configuraciones desde la clase
 #app.config.from_object(DevelopmentConfig)
-app.config.from_object(os.environ['APP_CONFIG'])
+app.config.from_object(ExtendedConfig)
+#app.config.from_object(os.environ['APP_CONFIG'])
 
 csrf = CSRFProtect()
 csrf.init_app(app)

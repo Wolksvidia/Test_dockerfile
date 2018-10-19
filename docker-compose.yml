@@ -3,8 +3,8 @@ version: '3'
 services:
   web:
     restart: always
-    build: ./web
-    container_name: web
+    build:
+      context: ./web
     networks:
       - front-tier
       - back-tier
@@ -20,7 +20,6 @@ services:
     restart: always
     build:
       context: ./nginx
-    container_name: nginx
     networks:
       - front-tier
     ports: 
@@ -34,7 +33,7 @@ services:
     restart: always
     build:
       context: ./postgres
-    container_name: postgres
+
     volumes:
       - "db-data:/var/lib/postgresql/data"
     networks:

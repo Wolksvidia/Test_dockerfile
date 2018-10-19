@@ -1,24 +1,32 @@
 version: '3'
+#configurado para deploy en swarm, es necesario generea las imagenes manualmente
 
 services:
   web:
     restart: always
-    build: ./web
-    container_name: web
+    image: web:test
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==manager
+    command: /usr/local/bin/gunicorn -w 2 -b :8000 main:app
     networks:
       - front-tier
       - back-tier
     ports:
       - "8000:8000"
-    command: /usr/local/bin/gunicorn -w 2 -b :8000 main:app
     depends_on:
       - postgres
 
   postgres:
     restart: always
-    build:
-      context: ./postgres
-    container_name: postgres
+    image: postgre:test
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==manager
     volumes:
       - "db-data:/var/lib/postgresql/data"
     networks:
