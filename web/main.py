@@ -8,7 +8,6 @@ from flask import (Flask, abort, request, render_template,
 from flask_wtf.csrf import CSRFProtect
 from flask_mail import Mail, Message
 
-from configs import DevelopmentConfig, ExtendedConfig
 from models import dbm as db, User, Comment, Location, Device
 from helpers import date_format
 from api import api_blueprint
@@ -17,8 +16,12 @@ app = Flask(__name__)
 
 #cargo las configuraciones desde la clase
 #app.config.from_object(DevelopmentConfig)
-app.config.from_object(ExtendedConfig)
-#app.config.from_object(os.environ['APP_CONFIG'])
+#app.config.from_object(ProductionConfig)
+app.config.from_object(os.environ['APP_CONFIG_INV'])
+"""
+    Set-Item -Path Env:APP_CONFIG_INV -Value "configs.DevelopmentConfig"
+    $Env:APP_CONFIG_INV = "configs.DevelopmentConfig"
+"""
 
 csrf = CSRFProtect()
 csrf.init_app(app)

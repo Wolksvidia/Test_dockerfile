@@ -21,8 +21,8 @@ RUN chown -R flask:flaskgroup /app/web
  
 USER flask
 
-ENV APP_CONFIG_INV configs.ProductionConfig
+ENV APP_CONFIG_INV configs.DevelopmentConfig
 
-#ENTRYPOINT ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "main:app"
+ENTRYPOINT ["python", "main.py"]
 
 EXPOSE 8000/tcp
