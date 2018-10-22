@@ -23,6 +23,6 @@ USER flask
 
 ENV APP_CONFIG_INV configs.DevelopmentConfig
 
-ENTRYPOINT ["python", "main.py"]
+#ENTRYPOINT ["python", "main.py"]
 
 EXPOSE 8000/tcp

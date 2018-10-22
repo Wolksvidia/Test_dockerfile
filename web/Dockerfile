@@ -23,6 +23,6 @@ USER flask
 
 ENV APP_CONFIG_INV configs.ProductionConfig
 
-#ENTRYPOINT ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "main:app"
+#ENTRYPOINT ["/usr/local/bin/gunicorn", "-w 2", "-b", ":8000", "main:app"]
 
 EXPOSE 8000/tcp
