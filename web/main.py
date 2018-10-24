@@ -76,11 +76,6 @@ def after_request(response):
     return response
 
 
-@app.before_first_request
-def crear():
-    app_context()
-
-
 @app.route('/')
 @app.route('/index')
 def index():
