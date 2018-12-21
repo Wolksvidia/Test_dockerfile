@@ -1,9 +1,0 @@
-Flask
-Flask-Mail
-Flask-SQLAlchemy
-Flask-WTF
-Flask-RESTful
-WTForms
-Gunicorn
-psycopg2-binary
-SQLAlchemy-Utils

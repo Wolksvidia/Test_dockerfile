@@ -1,5 +1,6 @@
-
-FROM alpine:3.8 
+#Imagen que requiere que los archivos de la aplicacion sean copiados desde la maquina
+#en que se genera la imagen
+FROM alpine:3.8
 
 RUN apk add --no-cache python3 postgresql-dev build-base python3-dev && \
     pip3 install --upgrade pip setuptools && \
