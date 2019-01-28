@@ -1,0 +1,30 @@
+version: '3'
+#configurado para deploy en swarm, stack MongoDB
+
+services:
+  mongo:
+    image: mongo:4.0.4-xenial
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==manager
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME  = root
+      - MONGO_INITDB_ROOT_PASSWORD = root
+      - MONGO_INITDB_DATABASE = test
+    ports:
+      - 27017:27017 
+
+  mongo-express:
+    image: mongo-express
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==manager
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME = root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD = root
+    ports:
+      - 7000:8081
